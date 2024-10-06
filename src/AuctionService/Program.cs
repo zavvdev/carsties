@@ -20,4 +20,13 @@ app.UseAuthorization();
 // allows to direct http request to the correct controller
 app.MapControllers();
 
+try
+{
+    DbInitializer.Init(app);
+}
+catch (Exception e)
+{
+    Console.WriteLine(e.Message);
+}
+
 app.Run();

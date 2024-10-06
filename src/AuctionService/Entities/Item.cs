@@ -19,7 +19,7 @@ public class Item
 
     public string? ImageUrl { get; set; }
 
-    public required Auction Auction { get; set; }
+    public Auction Auction { get; set; } = null!;
 
     public Guid AuctionId { get; set; }
 }

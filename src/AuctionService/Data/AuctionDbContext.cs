@@ -3,10 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuctionService.Data;
 
-class AuctionDbContext : DbContext
+public class AuctionDbContext(DbContextOptions options) : DbContext(options)
 {
-    public AuctionDbContext(DbContextOptions options)
-        : base(options) { }
-
     public required DbSet<Auction> Auctions { get; set; }
 }

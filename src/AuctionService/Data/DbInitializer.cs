@@ -9,12 +9,13 @@ public class DbInitializer
     {
         using var scope = app.Services.CreateScope();
 
-        var service = scope.ServiceProvider.GetService<AuctionDbContext>();
+        var context =
+            scope.ServiceProvider.GetService<AuctionDbContext>()
+            ?? throw new InvalidOperationException(
+                "Failed to retrieve AuctionDbContext from the service provider."
+            );
 
-        if (service != null)
-        {
-            SeedData(service);
-        }
+        SeedData(context);
     }
 
     private static void SeedData(AuctionDbContext context)

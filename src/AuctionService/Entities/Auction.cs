@@ -6,7 +6,7 @@ public class Auction
 
     public int ReservePrice { get; set; } = 0;
 
-    public string? Seller { get; set; }
+    public required string Seller { get; set; }
 
     public string? Winner { get; set; }
 
@@ -22,5 +22,5 @@ public class Auction
 
     public Status Status { get; set; }
 
-    public required Item Item { get; set; }
+    public Item Item { get; set; } = null!;
 }

@@ -3,6 +3,8 @@ using AuctionService.DTOs;
 using AuctionService.Entities;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +12,11 @@ namespace AuctionService.Controllers;
 
 [ApiController]
 [Route("api/auctions")]
-public class AuctionsController(AuctionDbContext repo, IMapper mapper) : ControllerBase
+public class AuctionsController(
+    AuctionDbContext repo,
+    IMapper mapper,
+    IPublishEndpoint publishEndpoint
+) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<AuctionDto>>> GetAllAuctions(string? date)
@@ -50,13 +56,15 @@ public class AuctionsController(AuctionDbContext repo, IMapper mapper) : Control
 
         repo.Auctions.Add(auction);
 
-        if (await repo.SaveChangesAsync() > 0)
+        var result = await repo.SaveChangesAsync() > 0;
+
+        var newAuction = mapper.Map<AuctionDto>(auction);
+
+        await publishEndpoint.Publish(mapper.Map<AuctionCreated>(newAuction));
+
+        if (result)
         {
-            return CreatedAtAction(
-                nameof(GetAuctionById),
-                new { auction.Id },
-                mapper.Map<AuctionDto>(auction)
-            );
+            return CreatedAtAction(nameof(GetAuctionById), new { auction.Id }, newAuction);
         }
 
         return BadRequest("Could not save changes to the DB");

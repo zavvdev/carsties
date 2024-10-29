@@ -56,11 +56,11 @@ public class AuctionsController(
 
         repo.Auctions.Add(auction);
 
-        var result = await repo.SaveChangesAsync() > 0;
-
         var newAuction = mapper.Map<AuctionDto>(auction);
 
         await publishEndpoint.Publish(mapper.Map<AuctionCreated>(newAuction));
+
+        var result = await repo.SaveChangesAsync() > 0;
 
         if (result)
         {
@@ -88,6 +88,8 @@ public class AuctionsController(
         auction.Item.Mileage = dto.Mileage ?? auction.Item.Mileage;
         auction.Item.Year = dto.Year ?? auction.Item.Year;
 
+        await publishEndpoint.Publish(mapper.Map<AuctionUpdated>(auction));
+
         if (await repo.SaveChangesAsync() > 0)
         {
             return Ok();
@@ -109,6 +111,8 @@ public class AuctionsController(
         // TODO: check seller == username
 
         repo.Auctions.Remove(auction);
+
+        await publishEndpoint.Publish<AuctionDeleted>(new { Id = auction.Id.ToString() });
 
         if (await repo.SaveChangesAsync() > 0)
         {
